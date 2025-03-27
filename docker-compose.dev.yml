@@ -9,8 +9,8 @@ services:
       - POSTGRES_PASSWORD=whoami_password
     ports:
       - "5432:5432"
-    volumes:
-      - pgdata_dev:/var/lib/postgresql/data
+    # volumes:
+    #   - pgdata_dev:/var/lib/postgresql/data
     networks:
       - app_network
 
@@ -42,7 +42,7 @@ services:
   data-populator:
     build: ./data-populator
     container_name: data-populator-dev
-    restart: unless-stopped
+    restart: no
     depends_on:
       - db
       - transfermarkt-api

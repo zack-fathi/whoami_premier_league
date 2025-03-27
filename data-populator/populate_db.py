@@ -20,9 +20,11 @@ TRANSFERMARKT_API_URL = os.getenv("TRANSFERMARKT_API_URL", "http://transfermarkt
 ##############################
 
 def create_table_if_not_exists():
+    time.sleep(10)
     create_table_sql = """
     CREATE TABLE IF NOT EXISTS players (
         id             TEXT PRIMARY KEY,
+        club           TEXT,
         name           TEXT,
         position       TEXT,
         foot           TEXT,
@@ -31,7 +33,8 @@ def create_table_if_not_exists():
         height         INT,
         market_value   BIGINT,
         nationality    TEXT,
-        stats          JSONB
+        stats          JSONB,
+        transfers      JSONB
     );
     """
 
@@ -77,6 +80,16 @@ def get_player_stats(player_id):
     print(f"Error fetching player {player_id}: {response.status_code}")
     return None
 
+def get_player_transfers(player_id):
+    """Fetches player transfer history from the Transfermarkt API."""
+    url = f"{TRANSFERMARKT_API_URL}/players/{player_id}/transfers"
+    response = requests.get(url)
+    if response.status_code == 200:
+        # This endpoint returns JSON with a "transfers" key containing a list of transfer records
+        return response.json().get('transfers', [])
+    print(f"Error fetching player {player_id} transfers: {response.status_code}")
+    return None
+
 ##############################
 # 3) Insert / Upsert Data
 ##############################
@@ -90,6 +103,7 @@ def insert_player_data_to_db(player_data):
     insert_query = """
         INSERT INTO players (
             id,
+            club,
             name,
             position,
             foot,
@@ -98,12 +112,14 @@ def insert_player_data_to_db(player_data):
             height,
             market_value,
             nationality,
-            stats
+            stats,
+            transfers
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s,  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (id)
         DO UPDATE
-            SET name = EXCLUDED.name,
+            SET club = EXCLUDED.club,
+                name = EXCLUDED.name,
                 position = EXCLUDED.position,
                 foot = EXCLUDED.foot,
                 date_of_birth = EXCLUDED.date_of_birth,
@@ -133,6 +149,7 @@ def insert_player_data_to_db(player_data):
 
                     # Extract basic fields
                     p_id = basic_info.get("id")
+                    club = p_data.get("club")
                     name = basic_info.get("name")
                     position = basic_info.get("position")
                     foot = basic_info.get("foot")
@@ -149,11 +166,16 @@ def insert_player_data_to_db(player_data):
                     stats_list = p_data.get("stats", [])
                     stats_json = json.dumps(stats_list)
 
+                    # transfers as JSON (list of dicts)
+                    transfers_list = p_data.get("transfers", [])
+                    transfers_json = json.dumps(transfers_list)
+
                     try:
                         cur.execute(
                             insert_query,
                             (
                                 p_id,
+                                club,
                                 name,
                                 position,
                                 foot,
@@ -162,7 +184,8 @@ def insert_player_data_to_db(player_data):
                                 height,
                                 market_value,
                                 nationality_str,
-                                stats_json
+                                stats_json,
+                                transfers_json
                             )
                         )
                         print(f"Inserted/updated player {p_id}.")
@@ -192,7 +215,8 @@ def main():
         return
 
     clubs = resp.get("clubs", [])
-    club_ids = [club["id"] for club in clubs]
+    clubs = {club["id"]: club for club in clubs}
+    club_ids = clubs.keys()
     print(f"Found {len(club_ids)} clubs in competition GB1.")
 
     # Dictionary to store all players data
@@ -207,7 +231,6 @@ def main():
 
         players_list = club_data.get("players", [])
         print(f"Club {club_id} has {len(players_list)} players.")
-        time.sleep(1)
 
         # For each player
         for player_dict in players_list:
@@ -225,8 +248,14 @@ def main():
             # print(stats if stats else f"No stats found for player {player_id}")
             player_data[player_id]["stats"] = stats if stats else []
 
+            transfers = get_player_transfers(player_id)
+            # print(transfers if transfers else f"No transfers found for player {player_id}")
+            player_data[player_id]["transfers"] = transfers if transfers else []
+
+            # add the players current club
+            player_data[player_id]["club"] = clubs[club_id]
+
             print(f"Player {player_id} -> Found {len(player_data[player_id]['stats'])} stats entries.")
-            time.sleep(1)
 
     print("Done fetching all player data and stats.")
 
