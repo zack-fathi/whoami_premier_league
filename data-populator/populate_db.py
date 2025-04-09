@@ -127,7 +127,8 @@ def insert_player_data_to_db(player_data):
                 height = EXCLUDED.height,
                 market_value = EXCLUDED.market_value,
                 nationality = EXCLUDED.nationality,
-                stats = EXCLUDED.stats
+                stats = EXCLUDED.stats,
+                transfers = EXCLUDED.transfers
     """
 
     try:
