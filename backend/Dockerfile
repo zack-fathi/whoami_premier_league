@@ -1,34 +1,22 @@
-############################################
-# 1️⃣  Build stage – Maven + JDK 17
-############################################
+############ Build stage ############
 FROM eclipse-temurin:17-jdk-focal AS builder
-
 WORKDIR /app
 
-# ── 1. Copy build files first (better cache) ──
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
-RUN chmod +x mvnw \
-    && ./mvnw -B dependency:go-offline      # download all deps
+RUN chmod +x mvnw && ./mvnw -B dependency:go-offline
 
-# ── 2. Copy source and build the fat JAR ──
 COPY src ./src
-RUN ./mvnw -B package -DskipTests           # creates target/<app>.jar
+RUN ./mvnw -B package -DskipTests   # should create target/whoami_premier_league-0.0.1-SNAPSHOT.jar
 
-
-############################################
-# 2️⃣  Runtime stage – slim JRE 17
-############################################
+############ Runtime stage ##########
 FROM eclipse-temurin:17-jre-focal
-
-# (optional) run as non‑root for safety
+WORKDIR /app
 RUN useradd -ms /bin/bash spring
 USER spring
 
-WORKDIR /app
-COPY --from=builder /app/target/*.jar app.jar
+# Copy the built JAR and rename it
+COPY --from=builder /app/target/whoami_premier_league-*.jar app.jar
 
 EXPOSE 8080
-
-# ── 3. Start Spring Boot ──
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]
