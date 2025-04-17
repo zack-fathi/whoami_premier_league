@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.zackfathi</groupId>
-	<artifactId>whoami_premier_league</artifactId>
+	<artifactId>pl_player_api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>whoami_premier_league</name>
-	<description>Who Am I game for Premier League Players</description>
+	<name>PlPlayerApi</name>
+	<description>Premier League API</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -42,10 +42,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-openai-spring-boot-starter</artifactId>
 		</dependency>
 
 		<dependency>

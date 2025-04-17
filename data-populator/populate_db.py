@@ -68,6 +68,7 @@ def insert_players(player_data):
     ) as conn:
         conn.autocommit = True
         with conn.cursor() as cur:
+            cur.execute("TRUNCATE TABLE players;")
             for p in player_data:
                 try:
                     cur.execute(query, (

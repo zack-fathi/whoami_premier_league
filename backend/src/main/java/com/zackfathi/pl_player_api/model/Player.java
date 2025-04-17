@@ -1,4 +1,4 @@
-package com.zackfathi.whoami_premier_league.model;
+package com.zackfathi.pl_player_api.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,17 +23,24 @@ public class Player {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
-    private int age;
-    private int height;
+    private Integer age;
+    private Integer height;
 
     @Column(name = "market_value")
-    private long marketValue;
+    private Long marketValue;
 
     private String nationality;
 
-    @Column(columnDefinition = "jsonb")
-    private String stats;  // stored as raw JSON string
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Column(columnDefinition = "jsonb")
-    private String transfers; // stored as raw JSON string
+    private String stats;
+
+    @Column(columnDefinition = "jsonb")
+    private String transfers;
+
+    @Column(columnDefinition = "jsonb")
+    private String achievements;
+
 }

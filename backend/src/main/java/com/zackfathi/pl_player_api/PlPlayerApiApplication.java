@@ -1,13 +1,13 @@
-package com.zackfathi.whoami_premier_league;
+package com.zackfathi.pl_player_api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class WhoamiPremierLeagueApplication {
+public class PlPlayerApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(WhoamiPremierLeagueApplication.class, args);
+		SpringApplication.run(PlPlayerApiApplication.class, args);
 	}
 
 }

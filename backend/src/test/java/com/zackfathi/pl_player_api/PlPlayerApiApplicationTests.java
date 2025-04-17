@@ -1,10 +1,10 @@
-package com.zackfathi.whoami_premier_league;
+package com.zackfathi.pl_player_api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class WhoamiPremierLeagueApplicationTests {
+class PlPlayerApiApplicationTests {
 
 	@Test
 	void contextLoads() {
